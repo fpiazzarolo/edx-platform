@@ -1,16 +1,26 @@
-define(['backbone', 'jquery', 'underscore', 'URI', 'common/js/spec_helpers/ajax_helpers',
+define([
+        'backbone',
+        'jquery',
+        'underscore',
+        'URI',
+        'paging-collection',
+        'common/js/spec_helpers/ajax_helpers',
         'js/spec/student_profile/helpers',
-        'js/student_profile/views/badge_list_container',
-        'common/js/components/collections/paging_collection'
+        'js/student_profile/views/badge_list_container'
     ],
-    function (Backbone, $, _, URI, AjaxHelpers, LearnerProfileHelpers, BadgeListContainer, PagingCollection) {
+    function (Backbone, $, _, URI, PagingCollection, AjaxHelpers, LearnerProfileHelpers, BadgeListContainer) {
         'use strict';
         describe('edx.user.BadgeListContainer', function () {
 
             var view, requests;
 
             var createView = function (requests, badge_list_object) {
-                var badgeCollection = new PagingCollection();
+                var BadgeCollection = PagingCollection.extend({
+                    queryParams: {
+                        currentPage: 'current_page'
+                    }
+                });
+                var badgeCollection = new BadgeCollection();
                 badgeCollection.url = '/api/badges/v1/assertions/user/staff/';
                 var models = [];
                 _.each(_.range(badge_list_object.count), function (idx) {
@@ -22,12 +32,12 @@ define(['backbone', 'jquery', 'underscore', 'URI', 'common/js/spec_helpers/ajax_
                 var path = new URI(request.url).path();
                 expect(path).toBe('/api/badges/v1/assertions/user/staff/');
                 AjaxHelpers.respondWithJson(requests, badge_list_object);
-                var badge_list_container = new BadgeListContainer({
+                var badgeListContainer = new BadgeListContainer({
                     'collection': badgeCollection
 
                 });
-                badge_list_container.render();
-                return badge_list_container;
+                badgeListContainer.render();
+                return badgeListContainer;
             };
 
             afterEach(function () {

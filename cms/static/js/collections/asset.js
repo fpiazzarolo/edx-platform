@@ -1,4 +1,6 @@
 define(["underscore", "paging-collection", "js/models/asset"], function(_, PagingCollection, AssetModel) {
+    'use strict';
+
     var AssetCollection = PagingCollection.extend({
         assetType: '',
         model : AssetModel,
@@ -31,23 +33,12 @@ define(["underscore", "paging-collection", "js/models/asset"], function(_, Pagin
             return PagingCollection.prototype.parse.call(this, response, options);
         },
 
+        /* jshint unused:false */
         parseState: function (response, queryParams, state, options) {
             return {
                 totalRecords: response[0].totalCount,
                 totalPages: Math.ceil(response[0].totalCount / response[0].pageSize)
             };
-        },
-
-        getTotalPages: function () {
-            return this.state.totalPages;
-        },
-
-        getTotalRecords: function () {
-            return this.state.totalRecords;
-        },
-
-        getPageSize: function () {
-            return this.state.pageSize;
         }
     });
 

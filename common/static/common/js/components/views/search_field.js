@@ -16,7 +16,7 @@
                     'keyup .search-field': 'refreshState',
                     'click .action-clear': 'clearSearch',
                     'mouseover .action-clear': 'setMouseOverState',
-                    'mouseout .action-clear': 'setMouseOutState',
+                    'mouseout .action-clear': 'setMouseOutState'
                 },
 
                 initialize: function(options) {

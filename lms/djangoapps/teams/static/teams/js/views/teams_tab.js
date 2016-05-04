@@ -121,7 +121,7 @@
                             course_id: this.context.courseID,
                             parse: true
                         }
-                    ).bootstrap();
+                    );
 
                     this.topicsView = new TopicsView({
                         router: this.router,
@@ -221,7 +221,7 @@
                                 title: gettext('Team Search'),
                                 description: interpolate(
                                     gettext('Showing results for "%(searchString)s"'),
-                                    { searchString: view.teamsCollection.searchString },
+                                    { searchString: view.teamsCollection.getSearchString() },
                                     true
                                 ),
                                 showSortControls: false
@@ -336,16 +336,15 @@
                                     per_page: 10
                                 });
                                 view.teamsCollection = collection;
-                                collection.goTo(1)
-                                    .done(function() {
-                                        var teamsView = view.createTeamsListView({
-                                            topic: topic,
-                                            collection: collection,
-                                            breadcrumbs: view.createBreadcrumbs(),
-                                            showSortControls: true
+                                collection.getPage(1).then(function () {
+                                    var teamsView = view.createTeamsListView({
+                                        topic: topic,
+                                        collection: collection,
+                                        breadcrumbs: view.createBreadcrumbs(),
+                                        showSortControls: true
                                         });
-                                        deferred.resolve(teamsView);
-                                    });
+                                    deferred.resolve(teamsView);
+                                });
                             });
                     }
                     return deferred.promise();
@@ -354,7 +353,6 @@
                 createTeamsListView: function(options) {
                     var topic = options.topic,
                         collection = options.collection,
-                        self = this,
                         teamsView = new TopicTeamsView({
                             router: this.router,
                             context: this.context,
@@ -389,7 +387,7 @@
                         // that the collection doesn't unnecessarily get refreshed again.
                         collection.isStale = false;
 
-                        if (collection.searchString) {
+                        if (collection.getSearchString()) {
                             Backbone.history.navigate(searchUrl, {trigger: true});
                         } else if (Backbone.history.getFragment() === searchUrl) {
                             Backbone.history.navigate('topics/' + topic.get('id'), {trigger: true});

@@ -120,6 +120,7 @@
                     if (collection.sortField === sortField) {
                         collection.sortDirection = collection.sortDirection === 'asc' ? 'desc' : 'asc';
                     } else {
+                        collection.sortField = sortField;
                         collection.sortDirection = defaultSortDirection;
                     }
 

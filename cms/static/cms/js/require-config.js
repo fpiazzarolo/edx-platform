@@ -187,7 +187,7 @@
             },
             "backbone.paginator": {
                 deps: ["backbone"],
-                exports: "Backbone.Paginator"
+                exports: "Backbone.PageableCollection"
             },
             "youtube": {
                 exports: "YT"

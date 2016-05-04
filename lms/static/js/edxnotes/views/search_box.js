@@ -102,7 +102,7 @@ define([
             if (args) {
                 this.options.search.apply(this, args);
                 this.logger.emit('edx.course.student_notes.searched', {
-                    'number_of_results': args[0].totalCount,
+                    'number_of_results': args[0].getTotalRecords(),
                     'search_string': args[1]
                 });
             } else {
@@ -147,15 +147,13 @@ define([
          * @return {jQuery.Deferred}
          */
         sendRequest: function (text) {
-            this.collection = new NotesCollection(
-                [],
-                {
-                    text: text,
-                    perPage: this.options.perPage,
-                    url: this.el.action
-                }
-            );
-            return this.collection.goTo(1);
+            this.collection = new NotesCollection([], {
+                text: text,
+                perPage: this.options.perPage,
+                url: this.el.action
+            });
+
+            return this.collection.getPage(1);
         }
     });
 

@@ -127,7 +127,7 @@ define(["jquery", "underscore", "gettext", "js/views/baseview", "js/models/asset
                 // so that the new asset is shown at the top of the page.
                 this.pagingView.setInitialSortColumn('js-asset-date-col');
                 this.pagingView.setInitialFilterColumn('js-asset-type-col');
-                this.pagingView.setPage(0);
+                this.pagingView.setPage(1);
 
                 analytics.track('Uploaded a File', {
                     'course': course_location_analytics,
@@ -302,7 +302,7 @@ define(["jquery", "underscore", "gettext", "js/views/baseview", "js/models/asset
                     '.column-filter-link[data-assetfilter="' + assettype + '"]'));
             },
 
-            closeFilterPopup: function(element){
+            closeFilterPopup: function(element) {
                 var $menu = element.parents('.nav-dd > .nav-item');
                 this.toggleFilterColumnState($menu, element);
             },
