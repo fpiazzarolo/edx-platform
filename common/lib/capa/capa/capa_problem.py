@@ -41,6 +41,7 @@ response_properties = ["codeparam", "responseparam", "answer", "openendedparam"]
 # special problem tags which should be turned into innocuous HTML
 html_transforms = {
     'problem': {'tag': 'div'},
+    'question': {'tag': 'div'},
     'text': {'tag': 'span'},
     'math': {'tag': 'span'},
 }
@@ -164,7 +165,7 @@ class LoncapaProblem(object):
         # parse problem XML file into an element tree
         self.tree = etree.XML(problem_text)
 
-        self.make_xml_compatible(self.tree)
+        self.tree = self.make_xml_compatible(self.tree)
 
         # handle any <include file="foo"> tags
         self._process_includes()
@@ -215,6 +216,15 @@ class LoncapaProblem(object):
         This translation takes in the new format and synthesizes the old option= attribute
         so all downstream logic works unchanged with the new <option> tag format.
         """
+        # Convert the existing problem's XML to new format
+        # <problem>...</problem> to <problem><question>...</question></problem>
+        questions = tree.xpath('//problem/question')
+        if not questions:
+            tree.tag = 'question'
+            problem = etree.Element('problem')
+            problem.insert(0, tree)
+            tree = problem
+
         additionals = tree.xpath('//stringresponse/additional_answer')
         for additional in additionals:
             answer = additional.get('answer')
@@ -237,6 +247,8 @@ class LoncapaProblem(object):
                 optioninput.attrib.update({'options': options_string})
                 if correct_option:
                     optioninput.attrib.update({'correct': correct_option})
+
+        return tree
 
     def do_reset(self):
         """
@@ -555,7 +567,10 @@ class LoncapaProblem(object):
         Main method called externally to get the HTML to be rendered for this capa Problem.
         """
         self.do_targeted_feedback(self.tree)
-        html = contextualize_text(etree.tostring(self._extract_html(self.tree)), self.context)
+        html_tree = self._extract_html(self.tree)
+        # don't include root div tags
+        html = ''.join(etree.tostring(question) for question in html_tree)
+        html = contextualize_text(html, self.context)
         return html
 
     def handle_input_ajax(self, data):
@@ -723,7 +738,7 @@ class LoncapaProblem(object):
         context['extra_files'] = extra_files or None
         return context
 
-    def _extract_html(self, problemtree):  # private
+    def _extract_html(self, problemtree, question_id=0):  # private
         """
         Main (private) function which converts Problem XML tree to HTML.
         Calls itself recursively.
@@ -808,7 +823,13 @@ class LoncapaProblem(object):
         # otherwise, render children recursively, and copy over attributes
         tree = etree.Element(problemtree.tag)
         for item in problemtree:
-            item_xhtml = self._extract_html(item)
+            item_xhtml = self._extract_html(item, question_id)
+
+            if item.tag == 'question':
+                item_xhtml.set('class', 'question')
+                item_xhtml.set('id', str(question_id))
+                question_id += 1
+
             if item_xhtml is not None:
                 tree.append(item_xhtml)
 
