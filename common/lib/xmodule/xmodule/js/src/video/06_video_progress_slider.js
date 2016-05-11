@@ -89,7 +89,8 @@ function () {
                 .slider.slider('option', 'value')),
             'aria-valuemax': state.videoPlayer.duration(),
             'aria-valuemin': '0',
-            'aria-valuenow': state.videoPlayer.currentTime
+            'aria-valuenow': state.videoPlayer.currentTime,
+            'tabindex': '0'
         });
 
         state.el.on('destroy', state.videoProgressSlider.destroy);
@@ -103,6 +104,9 @@ function () {
     // ***************************************************************
 
     function buildSlider() {
+        this.videoProgressSlider.el
+            .append('<div class="ui-slider-handle progress-handle"></div>');
+
         this.videoProgressSlider.slider = this.videoProgressSlider.el
             .slider({
                 range: 'min',
