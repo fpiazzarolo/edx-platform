@@ -260,6 +260,7 @@ define(['backbone', 'jquery', 'underscore', 'common/js/spec_helpers/ajax_helpers
                     // Verify image upload progress message
                     verifyImageUploadButtonMessage(imageView, true);
 
+                    window.onbeforeunload = null;
                     $(window).trigger('beforeunload');
                     expect(imageView.onBeforeUnload).toHaveBeenCalled();
                 });
