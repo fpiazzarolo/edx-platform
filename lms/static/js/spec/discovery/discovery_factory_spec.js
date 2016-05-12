@@ -107,6 +107,12 @@ define([
                 'templates/discovery/filter_bar'
             ]);
             DiscoveryFactory(MEANINGS);
+
+            jasmine.clock().install();
+        });
+
+        afterEach(function () {
+            jasmine.clock().uninstall();
         });
 
         it('does search', function () {
@@ -121,7 +127,7 @@ define([
 
         it('loads more', function () {
             var requests = AjaxHelpers.requests(this);
-            jasmine.clock().install();
+
             $('.discovery-input').val('test');
             $('.discovery-submit').trigger('click');
             AjaxHelpers.respondWithJson(requests, JSON_RESPONSE);
@@ -135,8 +141,6 @@ define([
             AjaxHelpers.respondWithJson(requests, JSON_RESPONSE);
             AjaxHelpers.respondWithJson(requests, JSON_RESPONSE);
             expect($('.courses-listing article').length).toEqual(2);
-
-            jasmine.clock().uninstall();
         });
 
         it('displays not found message', function () {
