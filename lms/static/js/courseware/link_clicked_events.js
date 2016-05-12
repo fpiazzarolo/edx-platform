@@ -12,7 +12,7 @@
                     }
                 }
                 else{
-                    parent_id = parents.first().data_usage_id;
+                    parent_id = parents.first().attributes.data_usage_id;
                 }
                 Logger.log(
                     "edx.ui.lms.link_clicked",

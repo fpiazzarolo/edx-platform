@@ -541,7 +541,7 @@ class CoursewareMultipleVerticalsTest(UniqueCourseTest, EventsTestMixin):
                 },
                 {
                     'event_type': 'edx.ui.lms.link_clicked',
-                    'name': 'edx.ui.lms.link_clickeds',
+                    'name': 'edx.ui.lms.link_clicked',
                 },
             ],
             ui_events,
