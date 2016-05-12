@@ -3,10 +3,16 @@
 
     define(['jquery', 'logger'], function ($, Logger) {
         return function () {
-            $("a").click(function(event) {
-                var parent_id = $(event.currentTarget).parent(".xblock");
-                if (!parent) {
-                    parent_id = $(event.currentTarget).parent(".course-navigation");
+            $('a:not([href^="#"])').click(function(event) {
+                var parents = $(event.currentTarget).parents(".xblock");
+                var parent_id = "courseware";
+                if (parents.length == 0) {
+                    if($(event.currentTarget).parents(".course-navigation")){
+                        parent_id = "course_navigation";
+                    }
+                }
+                else{
+                    parent_id = parents.first().data_usage_id;
                 }
                 Logger.log(
                     "edx.ui.lms.link_clicked",
