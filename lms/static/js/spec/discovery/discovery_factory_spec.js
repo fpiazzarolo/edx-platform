@@ -133,9 +133,9 @@ define([
             AjaxHelpers.respondWithJson(requests, JSON_RESPONSE);
             expect($('.courses-listing article').length).toEqual(1);
             expect($('.courses-listing .course-title')).toContainHtml('edX Demonstration Course');
+            jasmine.clock().tick(500);
             window.scroll(0, $(document).height());
             $(window).trigger('scroll');
-            jasmine.clock().tick(500);
 
             // TODO: determine why the search API is invoked twice
             AjaxHelpers.respondWithJson(requests, JSON_RESPONSE);
