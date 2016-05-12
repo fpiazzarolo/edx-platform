@@ -93,7 +93,7 @@ from django.core.urlresolvers import reverse
             %endif
           </div>
 
-        <h1>${_("Instructor Dashboard")}</h1>
+        <h1 class="hd hd-1">${_("Instructor Dashboard")}</h1>
 
           %if analytics_dashboard_message:
             <div class="wrapper-msg urgency-low is-shown">
@@ -116,7 +116,7 @@ from django.core.urlresolvers import reverse
         ## to keep this short, sections can be pulled out into their own files
 
         % for section_data in sections:
-          <section id="${ section_data['section_key'] }" class="idash-section">
+          <section id="${ section_data['section_key'] }" class="idash-section" aria-labelledby="header-${section_data['section_key']}">
             <%include file="${ section_data['section_key'] }.html" args="section_data=section_data" />
           </section>
           % endfor
