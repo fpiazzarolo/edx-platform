@@ -64,3 +64,34 @@ def get_user_program_credentials(user):
         programs_credentials_data = get_programs_for_credentials(user, programs_credentials)
 
     return programs_credentials_data
+
+
+def get_xseries_credentials(user):
+    """Return program credentials data required for display on
+    the learner dashboard.
+
+    Given a user, find all programs for which certificates have been earned
+    and return list of dictionaries of required program data.
+
+    Arguments:
+        user (User): user object for getting programs credentials.
+
+    Returns:
+        list of dict, containing data corresponding to the programs for which
+        the user has been awarded a credential.
+    """
+    programs_credentials = get_user_program_credentials(user)
+    credentials_data = []
+    for program in programs_credentials:
+        if program.get('category') == 'xseries':
+            try:
+                program_data = {
+                    'display_name': program['name'],
+                    'subtitle': program['subtitle'],
+                    'credential_url': program['credential_url'],
+                }
+                credentials_data.append(program_data)
+            except KeyError:
+                log.warning('Program structure is invalid: %r', program)
+
+    return credentials_data
