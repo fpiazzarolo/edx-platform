@@ -62,6 +62,7 @@ from importlib import import_module
 from mongodb_proxy import autoretry_read
 from path import Path as path
 from pytz import UTC
+import traceback
 from bson.objectid import ObjectId
 
 from xblock.core import XBlock
@@ -795,6 +796,20 @@ class SplitMongoModuleStore(SplitBulkWriteMixin, ModuleStoreWriteBase):
         """
         if self.request_cache is not None:
             self.request_cache.data.setdefault('course_cache', {})[course_version_guid] = system
+            number_courses_in_cache = len(self.request_cache.data['course_cache'])
+            if number_courses_in_cache > 1:
+                # We shouldn't have any scenarios where there's more than
+                # one course in the request cache. My suspicion is that
+                # it would be indicative of a leak. So, if that happens,
+                # let's log it here with a traceback.
+                log.warning((
+                    "More than one ({num_courses}) course in the request cache, "
+                    "which may be indicative of a memory leak. Traceback:\n"
+                    "{traceback}"
+                ).format(
+                    num_courses=number_courses_in_cache,
+                    traceback="".join(traceback.format_stack()[-10:])
+                ))
         return system
 
     def _clear_cache(self, course_version_guid=None):
