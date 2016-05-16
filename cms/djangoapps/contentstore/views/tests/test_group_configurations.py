@@ -682,8 +682,8 @@ class GroupConfigurationsUsageInfoTestCase(CourseTestCase, HelperMethods):
     @ddt.data(ModuleStoreEnum.Type.mongo, ModuleStoreEnum.Type.split)
     def test_can_get_correct_usage_info_with_orphan(self, module_store_type):
         """
-        Test if content group json updated successfully with usage information even if there is
-        an orphan in content group.
+        Test if content group json updated successfully with usage information
+        even if there is an orphan in content group.
         """
         self.course = CourseFactory.create(default_store=module_store_type)
         self._add_user_partitions(count=1, scheme_id='cohort')
