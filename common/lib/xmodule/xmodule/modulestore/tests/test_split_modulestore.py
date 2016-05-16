@@ -1,7 +1,7 @@
 """
     Test split modulestore w/o using any django stuff.
 """
-from mock import patch
+from mock import patch, Mock
 import datetime
 from importlib import import_module
 from path import Path as path
@@ -627,11 +627,33 @@ class SplitModuleCourseTests(SplitModuleTest):
         self.assertEqual(course.edited_by, "testassist@edx.org")
         self.assertDictEqual(course.grade_cutoffs, {"Pass": 0.45})
 
+    @ddt.data(
+        (10, 0), (2, 1)
+    )
+    @ddt.unpack
+    @patch("xmodule.modulestore.split_mongo.split.log.warning")
+    def test_request_cache_max_courses(self,
+        max_num_courses_in_cache,
+        number_warnings,
+        log_warning
+    ):
+        """
+        Test that we warn if there are too many courses in the request cache
+        at once.
+        """
+        mock_request_cache = Mock()
+        mock_request_cache.data = {}
+
+        modulestore().max_num_courses_in_cache = max_num_courses_in_cache
+        modulestore().request_cache = mock_request_cache
+        courses = modulestore().get_courses(branch=BRANCH_NAME_DRAFT)
+        self.assertEqual(log_warning.call_count, number_warnings)
+
     @patch('xmodule.tabs.CourseTab.from_json', side_effect=mock_tab_from_json)
     def test_get_courses_with_same_course_index(self, _from_json):
         """
-        Test that if two courses pointing to same course index,
-        get_courses should return both.
+        Test that if two courses point to same course index,
+        `get_courses` should return both courses.
         """
         courses = modulestore().get_courses(branch=BRANCH_NAME_DRAFT)
         # Should have gotten 3 draft courses.

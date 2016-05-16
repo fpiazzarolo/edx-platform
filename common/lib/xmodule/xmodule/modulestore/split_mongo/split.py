@@ -688,6 +688,10 @@ class SplitMongoModuleStore(SplitBulkWriteMixin, ModuleStoreWriteBase):
         if self.request_cache is not None:
             self.services["request_cache"] = self.request_cache
 
+        # set the maximum number of courses we expect
+        # to see in the request cache
+        self.max_num_courses_in_cache = 10
+
         self.signal_handler = signal_handler
 
     def close_connections(self):
@@ -797,18 +801,20 @@ class SplitMongoModuleStore(SplitBulkWriteMixin, ModuleStoreWriteBase):
         if self.request_cache is not None:
             self.request_cache.data.setdefault('course_cache', {})[course_version_guid] = system
             number_courses_in_cache = len(self.request_cache.data['course_cache'])
-            if number_courses_in_cache > 1:
-                # We shouldn't have any scenarios where there's more than
-                # one course in the request cache. My suspicion is that
-                # it would be indicative of a leak. So, if that happens,
-                # let's log it here with a traceback.
+            if number_courses_in_cache > self.max_num_courses_in_cache:
+                # We shouldn't have any scenarios where there are many
+                # courses in the request cache. If there are, it's probably
+                # indicative of a leak. In this case, we should log that here
+                # with a traceback.
                 log.warning((
-                    "More than one ({num_courses}) course in the request cache, "
-                    "which may be indicative of a memory leak. Traceback:\n"
+                    "There are more than {max_num_courses} ({num_courses}) "
+                    "courses in the request cache. This may be indicative "
+                    "of a memory leak. Traceback:\n"
                     "{traceback}"
                 ).format(
+                    max_num_courses=self.max_num_courses_in_cache,
                     num_courses=number_courses_in_cache,
-                    traceback="".join(traceback.format_stack()[-10:])
+                    traceback="".join(traceback.format_stack()[-10:]),
                 ))
         return system
 
