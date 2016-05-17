@@ -73,11 +73,12 @@ class TestLinter(TestCase):
         elif data['rule'] is not None:
             rules.append(data['rule'])
         results.violations.sort(key=lambda violation: violation.sort_key())
+
         # Print violations if the lengths are different.
         if len(results.violations) != len(rules):
             for violation in results.violations:
                 print("Found violation: {}".format(violation.rule))
-        # Make assertions.
+
         self.assertEqual(len(results.violations), len(rules))
         for violation, rule in zip(results.violations, rules):
             self.assertEqual(violation.rule, rule)
