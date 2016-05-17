@@ -155,9 +155,6 @@
                         return {
                             'view': new AccountSettingsFieldViews.AuthFieldView({
                                 title: provider.name,
-                                screenReaderTitle: interpolate_text(
-                                    gettext("Connect your {accountName} account"), {accountName: provider['name']}
-                                ),
                                 valueAttribute: 'auth-' + provider.id,
                                 helpMessage: '',
                                 connected: provider.connected,
