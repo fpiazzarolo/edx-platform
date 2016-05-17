@@ -34,10 +34,10 @@
             EmailFieldView: FieldViews.TextFieldView.extend({
                 fieldTemplate: field_text_account_template,
                 successMessage: function () {
-                    return this.indicators.success + interpolate_text(
+                    return this.indicators.success + window.interpolate_text(
                             gettext(
-                                /* jshint maxlen: false */
-                                'We\'ve sent a confirmation message to {new_email_address}. Click the link in the message to update your email address.'
+                                'We\'ve sent a confirmation message to {new_email_address}. Click the link in the ' +
+                                'message to update your email address.'
                             ),
                             {'new_email_address': this.fieldValue()}
                         );
@@ -98,10 +98,10 @@
                     });
                 },
                 successMessage: function () {
-                    return this.indicators.success + interpolate_text(
+                    return this.indicators.success + window.interpolate_text(
                             gettext(
-                                /* jshint maxlen: false */
-                                'We\'ve sent a message to {email_address}. Click the link in the message to reset your password.'
+                                'We\'ve sent a message to {email_address}. Click the link in the message to reset ' +
+                                'your password.'
                             ),
                             {'email_address': this.model.get(this.options.emailAttribute)}
                         );
@@ -140,23 +140,23 @@
                     var linkTitle = '',
                         linkClass = '',
                         subTitle = '',
-                        screenReaderTitle = interpolate_text(
+                        screenReaderTitle = window.interpolate_text(
                             gettext("Connect your {accountName} account"), {accountName: this.options.title}
                         );
                     if (this.options.connected) {
                         linkTitle = gettext('Unlink This Account');
                         linkClass = 'social-field-linked';
-                        subTitle = interpolate_text(
+                        subTitle = window.interpolate_text(
                             gettext('You can use your {accountName} account to sign in to your edX account.'),
                             {accountName: this.options.title}
                         );
-                        screenReaderTitle = interpolate_text(
+                        screenReaderTitle = window.interpolate_text(
                             gettext("Unlink your {accountName} account"), {accountName: this.options.title}
                         );
                     } else if (this.options.acceptsLogins) {
                         linkTitle = gettext('Link Your Account');
                         linkClass = 'social-field-unlinked';
-                        subTitle = interpolate_text(
+                        subTitle = window.interpolate_text(
                             gettext(
                                 'Link your {accountName} account to your edX account and ' +
                                 'use {accountName} to sign in to edX.'
@@ -214,7 +214,9 @@
                     });
                 },
                 inProgressMessage: function () {
-                    return this.indicators.inProgress + (this.options.connected ? gettext('Unlinking') : gettext('Linking'));
+                    return this.indicators.inProgress + (
+                        this.options.connected ? gettext('Unlinking') : gettext('Linking')
+                    );
                 },
                 successMessage: function () {
                     return this.indicators.success + gettext('Successfully unlinked.');
