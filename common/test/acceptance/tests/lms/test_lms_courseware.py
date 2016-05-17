@@ -507,18 +507,14 @@ class CoursewareMultipleVerticalsTest(UniqueCourseTest, EventsTestMixin):
             sequence_ui_events
         )
 
-    def test_accordion_events(self):
+    def test_outline_selected_events(self):
         self.course_nav.go_to_section('Test Section 1', 'Test Subsection 1,2')
 
         self.course_nav.go_to_section('Test Section 2', 'Test Subsection 2,1')
 
         # test UI events emitted by navigating via the course outline
-        filter_ui_events = lambda event: event.get('name', '') \
-            in ['edx.ui.lms.outline.selected', 'edx.ui.lms.link_clicked']
-
-        ui_events = self.wait_for_events(event_filter=filter_ui_events, timeout=2)
-
-        print(ui_events)
+        filter_selected_events = lambda event: event.get('name', '') == 'edx.ui.lms.outline.selected'
+        selected_events = self.wait_for_events(event_filter=filter_selected_events, timeout=2)
 
         # note: target_url is tested in unit tests, as the url changes here with every test (it includes GUIDs).
         self.assert_events_match(
@@ -537,15 +533,28 @@ class CoursewareMultipleVerticalsTest(UniqueCourseTest, EventsTestMixin):
                     'event': {
                         'target_name': 'Test Subsection 2,1 ',
                         'widget_placement': 'accordion',
+
                     }
                 },
+            ],
+            selected_events
+        )
+
+    def test_link_clicked_events(self):
+        self.course_nav.go_to_section('Test Section 1', 'Test Subsection 1,2')
+
+        filter_link_clicked = lambda event: event.get('name', '') == 'edx.ui.lms.link_clicked'
+        link_clicked_events = self.wait_for_events(event_filter=filter_link_clicked, timeout=2)
+        print link_clicked_events
+        # note: target_url is tested in unit tests, as the url changes here with every test (it includes GUIDs).
+        self.assert_events_match(
+            [
                 {
                     'event_type': 'edx.ui.lms.link_clicked',
                     'name': 'edx.ui.lms.link_clicked',
                 },
             ],
-            ui_events,
-            in_order=False
+            link_clicked_events
         )
 
     def assert_navigation_state(
