@@ -303,6 +303,12 @@ class FieldData(object):
         else:
             self.fields[field_name] = field_value
 
+    def __delattr__(self, field_name):
+        if self._is_own_field(field_name):
+            return super(FieldData, self).__delattr__(field_name)
+        else:
+            delattr(self.fields, field_name)
+
     def _is_own_field(self, field_name):
         """
         Returns whether the given field_name is the name of an
@@ -501,7 +507,7 @@ class BlockStructureBlockData(BlockStructure):
 
     def get_transformer_block_data(self, usage_key, transformer):
         """
-        Returns the entire transformer data dict for the given
+        Returns the TransformerData for the given
         transformer for the block identified by the given usage_key;
         returns an empty dict {} if not found.
 
@@ -535,7 +541,10 @@ class BlockStructureBlockData(BlockStructure):
                 whose data entry is to be deleted.
         """
         transformer_block_data = self.get_transformer_block_data(usage_key, transformer)
-        transformer_block_data.pop(key, None)
+        try:
+            delattr(transformer_block_data, key)
+        except AttributeError:
+            pass
 
     def remove_block(self, usage_key, keep_descendants):
         """
