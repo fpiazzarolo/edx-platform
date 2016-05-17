@@ -688,7 +688,7 @@ class GroupConfigurationsUsageInfoTestCase(CourseTestCase, HelperMethods):
         """
         self.course = CourseFactory.create(default_store=module_store_type)
         self._add_user_partitions(count=1, scheme_id='cohort')
-        vertical, problem = self._create_problem_with_content_group(cid=0, group_id=1, name_suffix='0', orphan=True)
+        vertical, __ = self._create_problem_with_content_group(cid=0, group_id=1, name_suffix='0', orphan=True)
 
         # Assert that there is an orphan in the course, and that it's the vertical
         self.assertEqual(len(self.store.get_orphans(self.course.id)), 1)
