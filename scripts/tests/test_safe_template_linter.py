@@ -72,8 +72,13 @@ class TestLinter(TestCase):
             rules = data['rule']
         elif data['rule'] is not None:
             rules.append(data['rule'])
-        self.assertEqual(len(results.violations), len(rules))
         results.violations.sort(key=lambda violation: violation.sort_key())
+        # Print violations if the lengths are different.
+        if len(results.violations) != len(rules):
+            for violation in results.violations:
+                print("Found violation: {}".format(violation.rule))
+        # Make assertions.
+        self.assertEqual(len(results.violations), len(rules))
         for violation, rule in zip(results.violations, rules):
             self.assertEqual(violation.rule, rule)
 
@@ -362,6 +367,18 @@ class TestMakoTemplateLinter(TestLinter):
         self.assertEqual(results.violations[0].rule, Rules.python_deprecated_display_name)
 
     @data(
+        {
+            'expression':
+                textwrap.dedent("""
+                    <%
+                        a_link_start = '<a class="link-courseURL" rel="external" href="'
+                        a_link_end = '">' + _("your course summary page") + '</a>'
+                        a_link = a_link_start + lms_link_for_about_page + a_link_end
+                        text = _("Introductions, prerequisites, FAQs that are used on %s (formatted in HTML)") % a_link
+                    %>
+                """),
+            'rule': [Rules.python_wrap_html, Rules.python_concat_html, Rules.python_wrap_html]
+        },
         {
             'expression':
                 textwrap.dedent("""

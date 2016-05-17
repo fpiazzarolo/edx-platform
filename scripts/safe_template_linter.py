@@ -2001,6 +2001,7 @@ class MakoTemplateLinter(BaseLinter):
             return
         has_page_default = self._has_page_default(mako_template, results)
         self._check_mako_expressions(mako_template, has_page_default, results)
+        self._check_mako_python_blocks(mako_template, has_page_default, results)
         results.prepare_results(mako_template, line_comment_delim=self.LINE_COMMENT_DELIM)
 
     def _is_django_template(self, mako_template):
@@ -2138,6 +2139,28 @@ class MakoTemplateLinter(BaseLinter):
         javascript_results = FileResults("")
         self.javascript_linter.check_javascript_file_is_safe(javascript_code, javascript_results)
         self._shift_and_add_violations(javascript_results, start_offset, results)
+
+    def _check_mako_python_blocks(self, mako_template, has_page_default, results):
+        """
+        Searches for Mako python blocks and checks if they contain
+        violations.
+
+        Arguments:
+            mako_template: The contents of the Mako template.
+            has_page_default: True if the page is marked as default, False
+                otherwise.
+            results: A list of results into which violations will be added.
+
+        """
+        python_block_regex = re.compile('<%\s(?P<code>.*?)%>', re.DOTALL)
+
+        for python_block_match in python_block_regex.finditer(mako_template):
+            self._check_expression_python(
+                python_code=python_block_match.group('code'),
+                start_offset=(python_block_match.start() + len('<% ')),
+                has_page_default=has_page_default,
+                results=results
+            )
 
     def _check_expression_python(self, python_code, start_offset, has_page_default, results):
         """
@@ -2549,6 +2572,7 @@ def _process_os_dirs(starting_dir, template_linters, options, summary_results, o
             continue
         dirs.sort(key=lambda s: s.lower())
         _process_os_dir(root, files, template_linters, options, summary_results, out)
+
 
 def _lint(file_or_dir, template_linters, options, summary_results, out):
     """
