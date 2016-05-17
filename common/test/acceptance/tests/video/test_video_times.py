@@ -3,7 +3,6 @@ Acceptance tests for Video Times(Start, End and Finish) functionality.
 """
 from flaky import flaky
 from .test_video_module import VideoBaseTest
-import unittest
 
 
 class VideoTimesTest(VideoBaseTest):
@@ -55,7 +54,7 @@ class VideoTimesTest(VideoBaseTest):
 
         self.assertIn(self.video.position, ('0:05', '0:06'))
 
-    @flaky  # TODO fix this, see TNL-1619
+    @flaky(15, 15)
     def test_video_end_time_wo_default_start_time(self):
         """
         Scenario: End time works for Youtube video if starts playing from between.
