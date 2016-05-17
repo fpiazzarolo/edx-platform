@@ -29,7 +29,7 @@ function (Iterator) {
 
     SpeedControl.prototype = {
         template: [
-            '<div class="speeds menu-container" role="application">',
+            '<div class="speeds menu-container">',
                 '<button class="control speed-button" aria-label="',
                     /* jshint maxlen:200 */
                     gettext('Speed: Press UP to enter the speed menu then use the UP and DOWN arrow keys to navigate the different speeds, then press ENTER to change to the selected speed.'),
@@ -99,7 +99,7 @@ function (Iterator) {
                 speedsList = $.map(reversedSpeeds, function (speed) {
                     return [
                         '<li data-speed="', speed, '">',
-                            '<button class="control speed-option" tabindex="-1">',
+                            '<button class="control speed-option" tabindex="-1" aria-pressed="false">',
                                 speed, 'x',
                             '</button>',
                         '</li>'
@@ -218,10 +218,9 @@ function (Iterator) {
 
                 this.speedButton.find('.value').text(speed + 'x');
                 this.currentSpeed = speed;
-                this.state.speed = speed;
                 
                 if (!silent) {
-                    this.el.trigger('speedchange', [speed, this.state.speed]);
+                    this.el.trigger('speedchange', [speed, this.currentSpeed]);
                 }
             }
 
@@ -233,7 +232,9 @@ function (Iterator) {
             var options = this.speedsContainer.find('li');
             
             $(options).each(function(index, el) {
-                $(el).removeClass('is-active');
+                $(el).removeClass('is-active')
+                    .find('.speed-option')
+                    .attr('aria-pressed', 'false');
             });
         },
         
@@ -248,7 +249,11 @@ function (Iterator) {
             
             option = this.speedsContainer.find('li[data-speed="' + speed + '"]');
             
-            option.addClass('is-active');
+            option.addClass('is-active')
+                .find('.speed-option')
+                .attr('aria-pressed', 'true');
+
+            this.speedButton.attr('title', gettext('Video speed: ') + speed + 'x');
         },
 
         /**
