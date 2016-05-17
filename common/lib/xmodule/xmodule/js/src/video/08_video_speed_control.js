@@ -29,7 +29,7 @@ function (Iterator) {
 
     SpeedControl.prototype = {
         template: [
-            '<div class="speeds menu-container">',
+            '<div class="speeds menu-container" role="application">',
                 '<button class="control speed-button" aria-label="',
                     /* jshint maxlen:200 */
                     gettext('Speed: Press UP to enter the speed menu then use the UP and DOWN arrow keys to navigate the different speeds, then press ENTER to change to the selected speed.'),
@@ -109,7 +109,7 @@ function (Iterator) {
             speedsContainer.html(speedsList.join(''));
             this.speedLinks = new Iterator(speedsContainer.find('.speed-option'));
             this.state.el.find('.secondary-controls').prepend(this.el);
-            this.setActiveSpeed();
+            this.setActiveSpeed("1.0"); // default state on initial render
         },
 
         /**
@@ -211,21 +211,21 @@ function (Iterator) {
          * not differs from current speed.
          */
         setSpeed: function (speed, silent, forceUpdate) {
-            if (speed !== this.state.speed || forceUpdate) {
+            if (speed !== this.currentSpeed || forceUpdate) {
                 this.speedsContainer
                     .find('li')
                     .siblings("li[data-speed='" + speed + "']");
 
                 this.speedButton.find('.value').text(speed + 'x');
                 this.currentSpeed = speed;
-                
+
                 if (!silent) {
                     this.el.trigger('speedchange', [speed, this.currentSpeed]);
                 }
             }
 
             this.resetActiveSpeed();
-            this.setActiveSpeed();
+            this.setActiveSpeed(speed);
         },
         
         resetActiveSpeed: function() {
@@ -238,16 +238,8 @@ function (Iterator) {
             });
         },
         
-        setActiveSpeed: function() {
-            var speed, option;
-
-            if (this.state.speed) {
-                speed = this.state.speed;
-            } else {
-                speed = '1.0'; // default if state is not set
-            }
-            
-            option = this.speedsContainer.find('li[data-speed="' + speed + '"]');
+        setActiveSpeed: function(speed) {
+            var option = this.speedsContainer.find('li[data-speed="' + speed + '"]');
             
             option.addClass('is-active')
                 .find('.speed-option')
@@ -275,7 +267,7 @@ function (Iterator) {
                 speed = $(el).data('speed');
                 
             this.resetActiveSpeed();
-            this.setActiveSpeed();
+            this.setActiveSpeed(speed);
             this.state.videoCommands.execute('speed', speed);
             this.closeMenu(true);
 
@@ -391,8 +383,6 @@ function (Iterator) {
                 case KEY.SPACE:
                     this.closeMenu(true);
                     this.speedButton.focus();
-                    this.resetActiveSpeed();
-                    this.setActiveSpeed();
                     this.setSpeed(this.state.speedToString(speed));
 
                     return false;
