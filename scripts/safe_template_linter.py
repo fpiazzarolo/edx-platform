@@ -2495,28 +2495,43 @@ def _process_file(full_path, template_linters, options, summary_results, out):
         results.print_results(options, summary_results, out)
 
 
-def _process_current_walk(current_walk, template_linters, options, summary_results, out):
+def _process_os_dir(directory, files, template_linters, options, summary_results, out):
     """
     For each linter, lints all the files in the current os walk.  This means
     finding and printing violations.
 
     Arguments:
-        current_walk: A walk returned by os.walk().
+        directory: Directory being linted.
+        files: All files in the directory to be linted.
         template_linters: A list of linting objects.
         options: A list of the options.
         summary_results: A SummaryResults with a summary of the violations.
         out: output file
 
     """
-    num_violations = 0
-    walk_directory = os.path.normpath(current_walk[0])
-    walk_files = current_walk[2]
-    for walk_file in walk_files:
-        full_path = os.path.join(walk_directory, walk_file)
+    for file in sorted(files, key=lambda s: s.lower()):
+        full_path = os.path.join(directory, file)
         _process_file(full_path, template_linters, options, summary_results, out)
 
 
-def _process_os_walk(starting_dir, template_linters, options, summary_results, out):
+def _skip_os_dir(directory):
+    """
+    Determines if a directory can be skipped for all linters.  Allows the linter
+    to save time by not sorting and linting directories that will never be
+    linted.
+
+    Arguments:
+        directory: The directory to be linted.
+
+    Returns:
+        True if the directory should be skipped, and False otherwise.
+
+    """
+    base_linter = BaseLinter()
+    return base_linter._is_skip_dir(base_linter._skip_dirs, directory)
+
+
+def _process_os_dirs(starting_dir, template_linters, options, summary_results, out):
     """
     For each linter, lints all the directories in the starting directory.
 
@@ -2528,10 +2543,12 @@ def _process_os_walk(starting_dir, template_linters, options, summary_results, o
         out: output file
 
     """
-    num_violations = 0
-    for current_walk in os.walk(starting_dir):
-        _process_current_walk(current_walk, template_linters, options, summary_results, out)
-
+    for root, dirs, files in os.walk(starting_dir):
+        if _skip_os_dir(root):
+            del dirs
+            continue
+        dirs.sort(key=lambda s: s.lower())
+        _process_os_dir(root, files, template_linters, options, summary_results, out)
 
 def _lint(file_or_dir, template_linters, options, summary_results, out):
     """
@@ -2555,7 +2572,7 @@ def _lint(file_or_dir, template_linters, options, summary_results, out):
                 directory = file_or_dir
             else:
                 raise ValueError("Path [{}] is not a valid file or directory.".format(file_or_dir))
-        _process_os_walk(directory, template_linters, options, summary_results, out)
+        _process_os_dirs(directory, template_linters, options, summary_results, out)
 
     summary_results.print_results(options, out)
 

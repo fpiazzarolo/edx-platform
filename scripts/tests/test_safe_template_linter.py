@@ -9,7 +9,7 @@ from StringIO import StringIO
 import textwrap
 from unittest import TestCase
 
-from ..safe_template_linter import (
+from scripts.safe_template_linter import (
     _lint, FileResults, JavaScriptLinter, MakoTemplateLinter, ParseString,
     StringLines, PythonLinter, SummaryResults, UnderscoreTemplateLinter, Rules
 )
@@ -91,6 +91,10 @@ class TestSafeTemplateLinter(TestCase):
         self.patch_is_valid_directory(JavaScriptLinter)
         self.patch_is_valid_directory(UnderscoreTemplateLinter)
         self.patch_is_valid_directory(PythonLinter)
+
+        patcher = mock.patch('scripts.safe_template_linter._skip_os_dir', return_value=[])
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def patch_is_valid_directory(self, linter_class):
         """
