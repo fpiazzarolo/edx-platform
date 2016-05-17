@@ -627,16 +627,10 @@ class SplitModuleCourseTests(SplitModuleTest):
         self.assertEqual(course.edited_by, "testassist@edx.org")
         self.assertDictEqual(course.grade_cutoffs, {"Pass": 0.45})
 
-    @ddt.data(
-        (10, 0), (2, 1)
-    )
+    @ddt.data((10, 0), (2, 1))
     @ddt.unpack
     @patch("xmodule.modulestore.split_mongo.split.log.warning")
-    def test_request_cache_max_courses(self,
-        max_num_courses_in_cache,
-        number_warnings,
-        log_warning
-    ):
+    def test_request_cache_max_courses(self, max_courses, expected_warnings, mock_log):
         """
         Test that we warn if there are too many courses in the request cache
         at once.
@@ -644,10 +638,10 @@ class SplitModuleCourseTests(SplitModuleTest):
         mock_request_cache = Mock()
         mock_request_cache.data = {}
 
-        modulestore().max_num_courses_in_cache = max_num_courses_in_cache
+        modulestore().max_num_courses_in_cache = max_courses
         modulestore().request_cache = mock_request_cache
-        courses = modulestore().get_courses(branch=BRANCH_NAME_DRAFT)
-        self.assertEqual(log_warning.call_count, number_warnings)
+        modulestore().get_courses(branch=BRANCH_NAME_DRAFT)
+        self.assertEqual(mock_log.call_count, expected_warnings)
 
     @patch('xmodule.tabs.CourseTab.from_json', side_effect=mock_tab_from_json)
     def test_get_courses_with_same_course_index(self, _from_json):

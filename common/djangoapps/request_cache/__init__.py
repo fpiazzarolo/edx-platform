@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 
 @task_postrun.connect
-def clear_request_cache(**kwargs):
+def clear_request_cache(**kwargs):  # pylint; disable=unused-argument
     """
     Once a celery task completes, clear the request cache to
     prevent memory leaks.
